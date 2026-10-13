@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Firestore & Auth) -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -16,7 +16,7 @@
 
         // ===== ضع إعدادات Firebase الخاصة بك هنا =====
         const firebaseConfig = {
-           apiKey: "AIzaSyCCNYumvakjtEb0tygzzGkm0Z72VAPf1BE",
+            apiKey: "AIzaSyCCNYumvakjtEb0tygzzGkm0Z72VAPf1BE",
   authDomain: "skills-barter-app.firebaseapp.com",
   projectId: "skills-barter-app",
   storageBucket: "skills-barter-app.firebasestorage.app",
@@ -34,7 +34,6 @@
         let currentLang = 'ar';
         let currentUser = null;
 
-        // مراقبة حالة تسجيل الدخول
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const authSection = document.getElementById('authSection');
@@ -51,7 +50,6 @@
             renderSkills(allSkills);
         });
 
-        // الترجمات
         const translations = {
             ar: {
                 navTitle: "Mraus | مَرَاوِس",
@@ -111,7 +109,6 @@
             const t = translations[currentLang];
             document.getElementById('navTitleText').innerHTML = `<i class="fa-solid fa-hands-holding-circle text-indigo-300"></i> ${t.navTitle}`;
             document.getElementById('loginBtnText').innerText = t.loginBtn;
-            document.getElementById('registerBtnText').innerText = t.registerBtn;
             document.getElementById('logoutBtnText').innerText = t.logoutBtn;
             document.getElementById('addSkillBtnText').innerHTML = `<i class="fa-solid fa-plus text-xs"></i> ${t.addSkillBtn}`;
             document.getElementById('badgeText').innerText = t.badge;
@@ -124,78 +121,70 @@
             document.getElementById('footerText').innerText = t.footerText;
         }
 
-        // تسجيل الدخول بواسطة Google
         window.loginWithGoogle = async function() {
             try {
                 await signInWithPopup(auth, googleProvider);
-                showNotification(currentLang === 'ar' ? 'تم تسجيل الدخول بواسطة جوجل بنجاح! 🎉' : 'Logged in with Google successfully!', 'success');
+                showNotification('تم تسجيل الدخول بنجاح!', 'success');
                 closeAuthModal();
             } catch (error) {
-                console.error("Google Auth Error:", error);
-                alert(error.message);
+                alert("خطأ في تسجيل الدخول: " + error.message);
             }
         }
 
-        window.openAuthModal = function(mode) {
-            const modal = document.getElementById('authModal');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            modal.classList.remove('hidden');
-            if (mode === 'login') {
-                document.getElementById('authModalTitle').innerText = currentLang === 'ar' ? 'تسجيل الدخول' : 'Login';
-                submitBtn.innerText = currentLang === 'ar' ? 'دخول' : 'Login';
-                submitBtn.setAttribute('data-mode', 'login');
-            } else {
-                document.getElementById('authModalTitle').innerText = currentLang === 'ar' ? 'إنشاء حساب جديد' : 'Register';
-                submitBtn.innerText = currentLang === 'ar' ? 'تسجيل حساب' : 'Register';
-                submitBtn.setAttribute('data-mode', 'register');
-            }
-        }
+        window.openAuthModal = function() { document.getElementById('authModal').classList.remove('hidden'); }
         window.closeAuthModal = function() { document.getElementById('authModal').classList.add('hidden'); }
 
         window.openAddModal = function() {
             if (!currentUser) {
                 alert(currentLang === 'ar' ? 'يرجى تسجيل الدخول أولاً لإضافة مهارتك!' : 'Please log in first!');
-                openAuthModal('login');
+                openAuthModal();
                 return;
             }
             document.getElementById('addModal').classList.remove('hidden');
         }
         window.closeAddModal = function() { document.getElementById('addModal').classList.add('hidden'); }
 
-        window.handleAuth = async function(e) {
+        window.handleEmailAuth = async function(e) {
             e.preventDefault();
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value.trim();
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const mode = submitBtn.getAttribute('data-mode');
 
             try {
-                if (mode === 'register') {
-                    await createUserWithEmailAndPassword(auth, email, pass);
-                } else {
+                // محاولة تسجيل الدخول، وإن لمط تكن موجودة يتم إنشاؤها تلقائياً
+                try {
                     await signInWithEmailAndPassword(auth, email, pass);
+                } catch {
+                    await createUserWithEmailAndPassword(auth, email, pass);
                 }
-                showNotification(currentLang === 'ar' ? 'تم بنجاح!' : 'Success!', 'success');
+                showNotification('تم تسجيل الدخول بنجاح!', 'success');
                 closeAuthModal();
                 document.getElementById('authForm').reset();
             } catch (error) {
-                alert(error.message);
+                alert("خطأ: " + error.message);
             }
         }
 
         window.logoutUser = async function() {
             await signOut(auth);
-            showNotification(currentLang === 'ar' ? 'تم تسجيل الخروج.' : 'Logged out.', 'success');
+            showNotification('تم تسجيل الخروج.', 'success');
         }
 
+        // دالة إضافة الإعلان المحسنة والمؤمنة
         window.addSkill = async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً!');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'جاري النشر...';
 
             try {
                 await addDoc(collection(db, "skills"), {
                     userId: currentUser.uid,
-                    userEmail: currentUser.email,
+                    userEmail: currentUser.email || "",
                     userName: document.getElementById('userName').value.trim(),
                     country: document.getElementById('userCountry').value.trim(),
                     category: document.getElementById('skillCategory').value,
@@ -206,27 +195,31 @@
                     createdAt: serverTimestamp()
                 });
 
-                showNotification('Published successfully!', 'success');
+                showNotification('تم نشر إعلانك بنجاح! 🎉', 'success');
                 closeAddModal();
                 document.getElementById('skillForm').reset();
                 loadSkills();
             } catch (error) {
-                alert('Error publishing.');
+                console.error("Firebase Add Error:", error);
+                alert("فشل النشر بسبب: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "نشر الإعلان";
             }
         }
 
         window.deleteSkill = async function(id, ownerId) {
             if (!currentUser || currentUser.uid !== ownerId) {
-                alert(currentLang === 'ar' ? 'يمكنك حذف إعلاناتك الخاصة فقط!' : 'You can only delete your own ads!');
+                alert('يمكنك حذف إعلاناتك الخاصة فقط!');
                 return;
             }
-            if (confirm(currentLang === 'ar' ? 'هل تريد إزالة إعلانك؟' : 'Remove your ad?')) {
+            if (confirm('هل تريد إزالة إعلانك؟')) {
                 try {
                     await deleteDoc(doc(db, "skills", id));
-                    showNotification('Removed successfully.', 'success');
+                    showNotification('تمت الإزالة بنجاح.', 'success');
                     loadSkills();
                 } catch (error) {
-                    alert('Delete error.');
+                    alert('خطأ في الحذف: ' + error.message);
                 }
             }
         }
@@ -234,7 +227,7 @@
         async function loadSkills() {
             const grid = document.getElementById('skillsGrid');
             if (!grid) return;
-            grid.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>Loading...</p></div>';
+            grid.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>جاري التحميل...</p></div>';
 
             try {
                 const q = query(collection(db, "skills"), orderBy("createdAt", "desc"));
@@ -252,7 +245,8 @@
                 document.getElementById('totalCountriesCount').innerText = countriesSet.size || 1;
                 renderSkills(allSkills);
             } catch (error) {
-                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><p>Database error. Check Firebase Rules.</p></div>';
+                console.error("Load Error:", error);
+                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><p>خطأ في جلب البيانات. تأكد من قواعد أمان Firebase.</p></div>';
             }
         }
 
@@ -347,8 +341,8 @@
                     <span id="langToggleText">English 🌍</span>
                 </button>
                 
-                <div id="authSection" class="flex gap-2">
-                    <button onclick="openAuthModal('login')" id="loginBtnText" class="text-xs bg-indigo-800 hover:bg-indigo-900 px-3 py-2 rounded-xl font-bold cursor-pointer transition">تسجيل الدخول</button>
+                <div id="authSection">
+                    <button onclick="openAuthModal()" id="loginBtnText" class="text-xs bg-indigo-800 hover:bg-indigo-900 px-3 py-2 rounded-xl font-bold cursor-pointer transition">تسجيل الدخول</button>
                 </div>
 
                 <div id="userProfileSection" class="hidden flex items-center gap-2">
@@ -412,26 +406,25 @@
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
 
-    <!-- نافذة تسجيل الدخول (مع زر جوجل) -->
+    <!-- نافذة تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 id="authModalTitle" class="text-lg font-bold text-gray-900">تسجيل الدخول</h3>
+                <h3 class="text-lg font-bold text-gray-900">تسجيل الدخول</h3>
                 <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- زر تسجيل الدخول بواسطة جوجل البارز -->
             <button onclick="loginWithGoogle()" class="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-3 mb-4 shadow-sm cursor-pointer transition">
-                <i class="fa-brands fa-google text-red-500"></i> تسجيل الدخول بواسطة Google
+                <i class="fa-brands fa-google text-red-500"></i> الدخول بواسطة Google
             </button>
 
             <div class="relative flex py-2 items-center">
                 <div class="flex-grow border-t border-gray-200"></div>
-                <span class="flex-shrink mx-4 text-gray-400 text-xs">أو بريد الكتروني</span>
+                <span class="flex-shrink mx-4 text-gray-400 text-xs">أو بالبريد الإلكتروني</span>
                 <div class="flex-grow border-t border-gray-200"></div>
             </div>
 
-            <form id="authForm" onsubmit="handleAuth(event)" class="space-y-3 mt-2">
+            <form id="authForm" onsubmit="handleEmailAuth(event)" class="space-y-3 mt-2">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">البريد الإلكتروني</label>
                     <input type="email" id="authEmail" required class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="name@example.com">
@@ -440,12 +433,12 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1">كلمة المرور</label>
                     <input type="password" id="authPassword" required class="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••">
                 </div>
-                <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-700 transition">دخول</button>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-700 transition">دخول / إنشاء حساب</button>
             </form>
         </div>
     </div>
 
-    <!-- نافذة الإضافة -->
+    <!-- نافذة إضافة مهارة -->
     <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b pb-3">
@@ -476,11 +469,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">ماذا تقدم؟</label>
-                    <input type="text" id="skillOffered" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: تصميم واجهات UI/UX">
+                    <input type="text" id="skillOffered" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: تصميم واجهات">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">ماذا تريد بالمقابل؟</label>
-                    <input type="text" id="skillWanted" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: مونتاج فيديو">
+                    <input type="text" id="skillWanted" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: ترجمة مقالات">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">رقم الواتساب</label>
