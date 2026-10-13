@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mraus (مراوس) - منصة المقايضة الرقمية العالمية</title>
+    <title>Mraus - Global Digital Barter Platform</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK والدوال البرمجية -->
+    <!-- Firebase SDK والنصوص البرمجية -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -28,15 +28,150 @@
         const db = getFirestore(app);
 
         let allSkills = [];
+        let currentLang = 'ar'; // اللغة الافتراضية
 
-        window.openAddModal = function() {
-            const modal = document.getElementById('addModal');
-            if (modal) modal.classList.remove('hidden');
+        // القواميس الخاصة باللغات (عربي / إنجليزي)
+        const translations = {
+            ar: {
+                navTitle: "Mraus | مَرَاوِس",
+                addSkillBtn: "أضف مهارتك مجاناً",
+                badge: "منصة المقايضة الرقمية العالمية 100% مجاناً",
+                heroTitle: "قايض بمهارتك مع أي شخص في العالم بلا أموال!",
+                heroDesc: "في منصة Mraus، لا تحتاج لدفع المال.. اعرض مهارتك واحصل على الخدمة التي تحتاجها بالمقابل بكل بساطة وتضامن عالمي.",
+                searchPlaceholder: "ابحث عن مهارة، خدمة، أو دولة (مثلاً: تصميم، برمجيات...)",
+                allCats: "جميع التصنيفات",
+                prog: "برمجة وتطوير",
+                design: "تصميم وفنون",
+                lang: "ترجمة ولغات",
+                mkt: "تسويق وأعمال",
+                maint: "صيانة وهندسة",
+                other: "مهارات متنوعة",
+                howItWorksTitle: "كيف تعمل منصة Mraus العالمية؟",
+                howItWorksSub: "ثلاث خطوات بسيطة لبدء المقايضة عبر الحدود",
+                step1Title: "اعرض مهارتك",
+                step1Desc: "أضف الخدمة أو المهارة التي تتقنها وتقدمها للآخرين مجاناً.",
+                step2Title: "حدد ما تحتاجه",
+                step2Desc: "اكتب بالمقابل الخدمة أو المساعدة التي تريدها من شخص آخر.",
+                step3Title: "تواصل وقايض",
+                step3Desc: "تواصل مباشرة عبر واتساب مع الطرف الآخر وأتمم المقايضة.",
+                activeOffers: "أحدث خدمات وعروض المقايضة النشطة",
+                skillsCountLabel: "المهارات والخدمات المعروضة",
+                countriesCountLabel: "الدول والمدن المشاركة",
+                modalTitle: "اعرض مهارتك للمقايضة",
+                modalSub: "انشر خدمتك على منصة Mraus عالمياً فوراً",
+                nameLabel: "اسمك أو معرفك الشخصي",
+                countryLabel: "بلد الإقامة والمدينة",
+                catLabel: "تصنيف الخدمة",
+                offeredLabel: "ماذا تقدم؟ (مهارتك أو خدمتك)",
+                wantedLabel: "ماذا تريد بالمقابل؟ (الخدمة المطلوبة)",
+                whatsappLabel: "رقم الواتساب للتواصل (اختياري)",
+                descLabel: "تفاصيل إضافية عن الخدمة",
+                submitBtn: "نشر الإعلان مجاناً",
+                footerText: "منصة Mraus العالمية - المقايضة الرقمية بلا حدود وبتكلفة صفرية.",
+                whatsappBtn: "مراسلة واتساب",
+                noContact: "لا يوجد رقم تواصل",
+                wantInReturn: "يريد بالمقابل:"
+            },
+            en: {
+                navTitle: "Mraus | Global Barter",
+                addSkillBtn: "Add Your Skill Free",
+                badge: "100% Free Global Digital Barter Platform",
+                heroTitle: "Barter Your Skills With Anyone Worldwide, No Money Needed!",
+                heroDesc: "On Mraus, you don't need cash. Offer your expertise and get the services you need in return through global solidarity.",
+                searchPlaceholder: "Search for skills, services, or country...",
+                allCats: "All Categories",
+                prog: "Programming & Tech",
+                design: "Design & Arts",
+                lang: "Translation & Languages",
+                mkt: "Marketing & Business",
+                maint: "Maintenance & Engineering",
+                other: "Various Skills",
+                howItWorksTitle: "How Mraus Works",
+                howItWorksSub: "Three simple steps to start cross-border bartering",
+                step1Title: "Offer Your Skill",
+                step1Desc: "List the service or expertise you can provide to others for free.",
+                step2Title: "Specify What You Need",
+                step2Desc: "Write down the service or help you want in return.",
+                step3Title: "Connect & Barter",
+                step3Desc: "Chat directly via WhatsApp with the other party and complete the swap.",
+                activeOffers: "Latest Active Barter Offers",
+                skillsCountLabel: "Active Skills & Services",
+                countriesCountLabel: "Participating Regions",
+                modalTitle: "List Your Skill for Barter",
+                modalSub: "Publish your service globally on Mraus instantly",
+                nameLabel: "Your Name / Handle",
+                countryLabel: "Country & City",
+                catLabel: "Service Category",
+                offeredLabel: "What You Offer?",
+                wantedLabel: "What You Want in Return?",
+                whatsappLabel: "WhatsApp Number (Optional)",
+                descLabel: "Additional Details",
+                submitBtn: "Publish Ad Free",
+                footerText: "Mraus Global Platform - Borderless Digital Barter at Zero Cost.",
+                whatsappBtn: "WhatsApp Chat",
+                noContact: "No contact number",
+                wantInReturn: "Wants in return:"
+            }
+        };
+
+        // تبديل اللغة
+        window.toggleLanguage = function() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            const htmlRoot = document.getElementById('htmlRoot');
+            
+            if (currentLang === 'en') {
+                htmlRoot.setAttribute('lang', 'en');
+                htmlRoot.setAttribute('dir', 'ltr');
+                document.getElementById('langToggleText').innerText = 'عربي 🇮🇶';
+            } else {
+                htmlRoot.setAttribute('lang', 'ar');
+                htmlRoot.setAttribute('dir', 'rtl');
+                document.getElementById('langToggleText').innerText = 'English 🌍';
+            }
+
+            updateTexts();
+            renderSkills(allSkills);
         }
 
+        function updateTexts() {
+            const t = translations[currentLang];
+            document.getElementById('navTitleText').innerText = t.navTitle;
+            document.getElementById('addSkillBtnText').innerHTML = `<i class="fa-solid fa-plus text-xs"></i> ${t.addSkillBtn}`;
+            document.getElementById('badgeText').innerText = t.badge;
+            document.getElementById('heroTitleText').innerText = t.heroTitle;
+            document.getElementById('heroDescText').innerText = t.heroDesc;
+            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+            document.getElementById('skillsCountLabel').innerText = t.skillsCountLabel;
+            document.getElementById('countriesCountLabel').innerText = t.countriesCountLabel;
+            document.getElementById('howTitle').innerText = t.howItWorksTitle;
+            document.getElementById('howSub').innerText = t.howItWorksSub;
+            document.getElementById('step1T').innerText = t.step1Title;
+            document.getElementById('step1D').innerText = t.step1Desc;
+            document.getElementById('step2T').innerText = t.step2Title;
+            document.getElementById('step2D').innerText = t.step2Desc;
+            document.getElementById('step3T').innerText = t.step3Title;
+            document.getElementById('step3D').innerText = t.step3Desc;
+            document.getElementById('activeTitle').innerText = t.activeOffers;
+            document.getElementById('footerText').innerText = t.footerText;
+            
+            // تحديث خيارات الفلتر
+            const filterSelect = document.getElementById('categoryFilter');
+            filterSelect.innerHTML = `
+                <option value="all">${t.allCats}</option>
+                <option value="programming">${t.prog}</option>
+                <option value="design">${t.design}</option>
+                <option value="languages">${t.lang}</option>
+                <option value="marketing">${t.mkt}</option>
+                <option value="maintenance">${t.maint}</option>
+                <option value="other">${t.other}</option>
+            `;
+        }
+
+        window.openAddModal = function() {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
         window.closeAddModal = function() {
-            const modal = document.getElementById('addModal');
-            if (modal) modal.classList.add('hidden');
+            document.getElementById('addModal').classList.add('hidden');
         }
 
         // إضافة إعلان جديد
@@ -44,7 +179,7 @@
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري النشر...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ...';
 
             try {
                 await addDoc(collection(db, "skills"), {
@@ -58,38 +193,35 @@
                     createdAt: serverTimestamp()
                 });
 
-                showNotification('تم نشر إعلانك على منصة Mraus بنجاح! 🎉', 'success');
+                showNotification('Successfully published on Mraus! 🎉', 'success');
                 window.closeAddModal();
                 document.getElementById('skillForm').reset();
                 loadSkills();
             } catch (error) {
-                console.error("خطأ في النشر: ", error);
-                showNotification('حدث خطأ أثناء النشر، تأكد من إعدادات قواعد البيانات.', 'error');
+                console.error("Error: ", error);
+                showNotification('Error publishing ad.', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = "نشر الإعلان مجاناً";
+                submitBtn.innerText = translations[currentLang].submitBtn;
             }
         }
 
-        // حذف أو إتمام إعلان
         window.deleteSkill = async function(id) {
-            if (confirm('هل تم إتمام المقايضة وتريد إزالة الإعلان من المنصة؟')) {
+            if (confirm('Did you complete this barter and want to remove it?')) {
                 try {
                     await deleteDoc(doc(db, "skills", id));
-                    showNotification('تم تحديث وإزالة الإعلان بنجاح.', 'success');
+                    showNotification('Ad removed successfully.', 'success');
                     loadSkills();
                 } catch (error) {
-                    console.error("خطأ في الحذف: ", error);
-                    showNotification('تعذر حذف الإعلان.', 'error');
+                    showNotification('Failed to remove.', 'error');
                 }
             }
         }
 
-        // جلب الإعلانات وتحديث الإحصائيات
         async function loadSkills() {
             const grid = document.getElementById('skillsGrid');
             if (!grid) return;
-            grid.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>جاري تحميل المهارات والخدمات...</p></div>';
+            grid.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>Loading global skills...</p></div>';
 
             try {
                 const q = query(collection(db, "skills"), orderBy("createdAt", "desc"));
@@ -104,28 +236,26 @@
                     if (data.country) countriesSet.add(data.country.trim());
                 });
 
-                // تحديث عدادات الإحصائيات الحية
                 document.getElementById('totalSkillsCount').innerText = allSkills.length;
                 document.getElementById('totalCountriesCount').innerText = countriesSet.size || 1;
 
                 renderSkills(allSkills);
             } catch (error) {
-                console.error("خطأ في الجلب: ", error);
-                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i><p>تعذر الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase Firestore Rules.</p></div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i><p>Database connection error. Check Firebase Rules.</p></div>';
             }
         }
 
-        // عرض المهارات في الشاشة
         window.renderSkills = function(skillsArray) {
             const grid = document.getElementById('skillsGrid');
             if (!grid) return;
+            const t = translations[currentLang];
             
             if (skillsArray.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
                         <i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i>
-                        <h4 class="text-lg font-bold text-gray-600">لا توجد مهارات مطابقة</h4>
-                        <p class="text-sm text-gray-400 mt-1">كن أول من يضيف خدمته ويقايض بها اليوم!</p>
+                        <h4 class="text-lg font-bold text-gray-600">${currentLang === 'ar' ? 'لا توجد مهارات مطابقة' : 'No matching skills found'}</h4>
+                        <p class="text-sm text-gray-400 mt-1">${currentLang === 'ar' ? 'كن أول من يضيف خدمته ويقايض بها!' : 'Be the first to list your service!'}</p>
                     </div>`;
                 return;
             }
@@ -133,26 +263,26 @@
             grid.innerHTML = "";
             skillsArray.forEach((data) => {
                 const categoryNames = {
-                    programming: 'برمجة وتطوير',
-                    design: 'تصميم وفنون',
-                    languages: 'ترجمة ولغات',
-                    marketing: 'تسويق وأعمال',
-                    maintenance: 'صيانة وهندسة',
-                    other: 'مهارات متنوعة'
+                    programming: t.prog,
+                    design: t.design,
+                    languages: t.lang,
+                    marketing: t.mkt,
+                    maintenance: t.maint,
+                    other: t.other
                 };
 
-                const categoryLabel = categoryNames[data.category] || 'خدمة عامة';
-                const whatsappLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('مرحباً ' + data.userName + '، رأيت مهارتك (' + data.skillOffered + ') على منصة Mraus (مراوس) وأرغب بالمقايضة.')}` : '#';
+                const categoryLabel = categoryNames[data.category] || 'General';
+                const whatsappLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello ' + data.userName + ', I saw your skill (' + data.skillOffered + ') on Mraus and want to barter.')}` : '#';
 
                 const card = `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-md transition duration-300 relative group">
-                        <button onclick="deleteSkill('${data.id}')" title="تمت المقايضة / إزالة الإعلان" class="absolute top-4 left-4 text-gray-300 hover:text-red-500 transition text-xs bg-gray-50 hover:bg-red-50 p-2 rounded-lg" title="إزالة الإعلان">
+                        <button onclick="deleteSkill('${data.id}')" class="absolute top-4 left-4 text-gray-300 hover:text-red-500 transition text-xs bg-gray-50 hover:bg-red-50 p-2 rounded-lg" title="Completed">
                             <i class="fa-solid fa-check-double"></i>
                         </button>
                         <div>
                             <div class="flex justify-between items-center mb-3 pr-8">
                                 <span class="bg-indigo-50 text-indigo-600 text-xs px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-tag"></i> ${categoryLabel}</span>
-                                <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(data.country || 'عالمي')}</span>
+                                <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(data.country || 'Global')}</span>
                             </div>
                             <h4 class="text-lg font-bold text-gray-800 mb-2">${escapeHtml(data.skillOffered)}</h4>
                             <p class="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed">${escapeHtml(data.skillDesc)}</p>
@@ -160,15 +290,15 @@
                         <div class="pt-4 border-t border-gray-100 flex flex-col gap-3">
                             <div class="bg-emerald-50 text-emerald-800 text-xs p-2.5 rounded-xl font-medium flex items-center gap-2">
                                 <i class="fa-solid fa-gift text-emerald-600 text-base"></i>
-                                <span class="truncate">يريد بالمقابل: <strong>${escapeHtml(data.skillWanted)}</strong></span>
+                                <span class="truncate">${t.wantInReturn} <strong>${escapeHtml(data.skillWanted)}</strong></span>
                             </div>
                             <div class="flex justify-between items-center text-xs text-gray-500 pt-1">
-                                <span>بواسطة: ${escapeHtml(data.userName)}</span>
+                                <span>By: ${escapeHtml(data.userName)}</span>
                                 ${data.whatsapp ? `
                                 <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> مراسلة واتساب
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> ${t.whatsappBtn}
                                 </a>` : `
-                                <span class="text-gray-400 text-xs">لا يوجد رقم تواصل</span>`}
+                                <span class="text-gray-400 text-xs">${t.noContact}</span>`}
                             </div>
                         </div>
                     </div>
@@ -177,14 +307,9 @@
             });
         }
 
-        // نظام البحث والفلترة
         window.filterSkills = function() {
-            const searchInput = document.getElementById('searchInput');
-            const categoryFilter = document.getElementById('categoryFilter');
-            if (!searchInput || !categoryFilter) return;
-
-            const searchKeyword = searchInput.value.toLowerCase();
-            const selectedCategory = categoryFilter.value;
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
 
             const filtered = allSkills.filter(item => {
                 const matchesSearch = (item.skillOffered && item.skillOffered.toLowerCase().includes(searchKeyword)) || 
@@ -207,7 +332,7 @@
 
         function showNotification(message, type = 'success') {
             const notif = document.createElement('div');
-            notif.className = `fixed bottom-5 left-5 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-medium text-sm transition transform translate-y-0 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+            notif.className = `fixed bottom-5 left-5 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-medium text-sm transition transform ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
             notif.innerText = message;
             document.body.appendChild(notif);
             setTimeout(() => { notif.remove(); }, 4000);
@@ -221,11 +346,15 @@
     <!-- شريط التنصّت العلوي -->
     <nav class="bg-indigo-700 text-white shadow-md sticky top-0 z-40 backdrop-blur-md bg-opacity-95">
         <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold flex items-center gap-2.5 tracking-tight">
+            <h1 class="text-xl font-extrabold flex items-center gap-2.5 tracking-tight" id="navTitleText">
                 <i class="fa-solid fa-hands-holding-circle text-indigo-300"></i> Mraus | مَرَاوِس
             </h1>
-            <div>
-                <button onclick="openAddModal()" class="bg-white text-indigo-700 px-5 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-50 transition text-sm flex items-center gap-2 cursor-pointer">
+            <div class="flex items-center gap-3">
+                <!-- زر تبديل اللغة -->
+                <button onclick="toggleLanguage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-indigo-500">
+                    <i class="fa-solid fa-globe"></i> <span id="langToggleText">English 🌍</span>
+                </button>
+                <button onclick="openAddModal()" class="bg-white text-indigo-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-50 transition text-sm flex items-center gap-2 cursor-pointer" id="addSkillBtnText">
                     <i class="fa-solid fa-plus text-xs"></i> أضف مهارتك مجاناً
                 </button>
             </div>
@@ -235,22 +364,22 @@
     <!-- الهيدر الترحيبي -->
     <header class="bg-gradient-to-br from-indigo-800 to-indigo-600 text-white py-16 text-center px-4 shadow-inner">
         <div class="max-w-3xl mx-auto">
-            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block">منصة المقايضة الرقمية المجانية 100%</span>
-            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight">قايض بمهارتك مع أي شخص في العالم بلا أموال!</h2>
-            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90">في منصة <strong>Mraus (مراوس)</strong>، لا تحتاج لدفع المال.. اعرض مهارتك واحصل على الخدمة التي تحتاجها بالمقابل بكل بساطة وتضامن.</p>
+            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block" id="badgeText">منصة المقايضة الرقمية العالمية 100% مجاناً</span>
+            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight" id="heroTitleText">قايض بمهارتك مع أي شخص في العالم بلا أموال!</h2>
+            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90" id="heroDescText">في منصة Mraus، لا تحتاج لدفع المال.. اعرض مهارتك واحصل على الخدمة التي تحتاجها بالمقابل بكل بساطة وتضامن عالمي.</p>
         </div>
     </header>
 
     <!-- شريط الإحصائيات الحي -->
     <section class="container mx-auto px-4 -mt-6 relative z-10">
-        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 max-w-xl mx-auto mb-6">
+        <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
                 <span class="block text-2xl font-black text-indigo-600" id="totalSkillsCount">0</span>
-                <span class="text-xs text-gray-400 font-medium">المهارات والخدمات المعروضة</span>
+                <span class="text-xs text-gray-400 font-medium" id="skillsCountLabel">المهارات والخدمات المعروضة</span>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
                 <span class="block text-2xl font-black text-emerald-600" id="totalCountriesCount">1</span>
-                <span class="text-xs text-gray-400 font-medium">الدول والمدن المشاركة</span>
+                <span class="text-xs text-gray-400 font-medium" id="countriesCountLabel">الدول والمدن المشاركة</span>
             </div>
         </div>
 
@@ -258,7 +387,7 @@
         <div class="bg-white p-4 md:p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
             <div class="relative w-full md:w-2/3">
                 <i class="fa-solid fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchInput" oninput="filterSkills()" placeholder="ابحث عن مهارة، خدمة، أو دولة (مثلاً: تصميم، بغداد...)" class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                <input type="text" id="searchInput" oninput="filterSkills()" placeholder="ابحث عن مهارة، خدمة، أو دولة (مثلاً: تصميم، برمجيات...)" class="w-full pr-11 pl-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
             </div>
             <div class="w-full md:w-1/3">
                 <select id="categoryFilter" onchange="filterSkills()" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white cursor-pointer">
@@ -274,27 +403,27 @@
         </div>
     </section>
 
-    <!-- قسم كيف تعمل المنصة (How It Works) -->
+    <!-- قسم كيف تعمل المنصة -->
     <section class="container mx-auto px-4 py-12">
         <div class="text-center mb-10">
-            <h3 class="text-2xl font-black text-gray-800 mb-2">كيف تعمل منصة مراوس؟</h3>
-            <p class="text-gray-500 text-sm">ثلاث خطوات بسيطة لبدء المقايضة الفورية</p>
+            <h3 class="text-2xl font-black text-gray-800 mb-2" id="howTitle">كيف تعمل منصة Mraus العالمية؟</h3>
+            <p class="text-gray-500 text-sm" id="howSub">ثلاث خطوات بسيطة لبدء المقايضة عبر الحدود</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
                 <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 font-bold text-lg">1</div>
-                <h4 class="font-bold text-gray-800 mb-2">اعرض مهارتك</h4>
-                <p class="text-xs text-gray-500 leading-relaxed">أضف الخدمة أو المهارة التي تتقنها وتستطيع تقديمها للآخرين مجاناً.</p>
+                <h4 class="font-bold text-gray-800 mb-2" id="step1T">اعرض مهارتك</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="step1D">أضف الخدمة أو المهارة التي تتقنها وتقدمها للآخرين مجاناً.</p>
             </div>
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
                 <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 font-bold text-lg">2</div>
-                <h4 class="font-bold text-gray-800 mb-2">حدد ما تحتاجه</h4>
-                <p class="text-xs text-gray-500 leading-relaxed">اكتب بالمقابل الخدمة أو المساعدة التي تحتاجها من شخص آخر.</p>
+                <h4 class="font-bold text-gray-800 mb-2" id="step2T">حدد ما تحتاجه</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="step2D">اكتب بالمقابل الخدمة أو المساعدة التي تريدها من شخص آخر.</p>
             </div>
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
                 <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4 font-bold text-lg">3</div>
-                <h4 class="font-bold text-gray-800 mb-2">تواصل وقايض</h4>
-                <p class="text-xs text-gray-500 leading-relaxed">تواصل مباشرة عبر واتساب مع الطرف الآخر وأتما المقايضة بنجاح.</p>
+                <h4 class="font-bold text-gray-800 mb-2" id="step3T">تواصل وقايض</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="step3D">تواصل مباشرة عبر واتساب مع الطرف الآخر وأتمم المقايضة.</p>
             </div>
         </div>
     </section>
@@ -302,35 +431,35 @@
     <!-- محتوى الصفحة -->
     <main class="container mx-auto px-4 pb-12">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-800">أحدث خدمات وعروض المقايضة النشطة</h3>
+            <h3 class="text-xl font-bold text-gray-800" id="activeTitle">أحدث خدمات وعروض المقايضة النشطة</h3>
         </div>
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
 
-    <!-- نافذة الإضافة (Modal) -->
+    <!-- نافذة الإضافة -->
     <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b pb-3">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900">اعرض مهارتك للمقايضة</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">انشر خدمتك على منصة Mraus مجاناً فوراً</p>
+                    <h3 class="text-xl font-bold text-gray-900" id="modalTitle">اعرض مهارتك للمقايضة</h3>
+                    <p class="text-xs text-gray-500 mt-0.5" id="modalSub">انشر خدمتك على منصة Mraus عالمياً فوراً</p>
                 </div>
                 <button type="button" onclick="closeAddModal()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
             <form id="skillForm" onsubmit="addSkill(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">اسمك أو معرفك الشخصي</label>
-                    <input type="text" id="userName" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: أحمد العراقي">
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="nameLabel">اسمك أو معرفك الشخصي</label>
+                    <input type="text" id="userName" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: أحمد / John">
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">بلد الإقامة والمدينة</label>
-                        <input type="text" id="userCountry" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: العراق، بغداد">
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="countryLabel">بلد الإقامة والمدينة</label>
+                        <input type="text" id="userCountry" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="العراق، بغداد / USA, NY">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">تصنيف الخدمة</label>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="catLabel">تصنيف الخدمة</label>
                         <select id="skillCategory" required class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
                             <option value="programming">برمجة وتطوير</option>
                             <option value="design">تصميم وفنون</option>
@@ -343,23 +472,23 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">ماذا تقدم؟ (مهارتك أو خدمتك)</label>
-                    <input type="text" id="skillOffered" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: تصميم شعارات بصرية متكاملة">
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="offeredLabel">ماذا تقدم؟ (مهارتك أو خدمتك)</label>
+                    <input type="text" id="skillOffered" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: Full-stack Web Development">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">ماذا تريد بالمقابل؟ (الخدمة المطلوبة)</label>
-                    <input type="text" id="skillWanted" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: مساعدة في ترجمة مقالات للإنجليزية">
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="wantedLabel">ماذا تريد بالمقابل؟ (الخدمة المطلوبة)</label>
+                    <input type="text" id="skillWanted" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: ترجمة احترافية للإنجليزية">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">رقم الواتساب للتواصل (اختياري)</label>
-                    <input type="text" id="userWhatsapp" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="مثال: 9647700000000+">
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="whatsappLabel">رقم الواتساب للتواصل (اختياري)</label>
+                    <input type="text" id="userWhatsapp" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="+9647700000000">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">تفاصيل إضافية عن الخدمة</label>
-                    <textarea id="skillDesc" rows="3" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 resize-none" placeholder="اكتب نبذة مختصرة عن خبرتك وكيف ستتم المقايضة..."></textarea>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase" id="descLabel">تفاصيل إضافية عن الخدمة</label>
+                    <textarea id="skillDesc" rows="3" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 resize-none" placeholder="اكتب نبذة مختصرة عن خبرتك..."></textarea>
                 </div>
 
                 <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition shadow-md text-sm mt-2 cursor-pointer">نشر الإعلان مجاناً</button>
@@ -370,11 +499,11 @@
     <!-- الفوتر -->
     <footer class="bg-white border-t text-center py-8 text-gray-400 text-xs mt-16">
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>منصة Mraus (مراوس) &copy; 2026 - المقايضة الرقمية بلا حدود وبتكلفة صفرية.</p>
+            <p id="footerText">منصة Mraus العالمية - المقايضة الرقمية بلا حدود وبتكلفة صفرية.</p>
             <div class="flex gap-4">
-                <span class="hover:text-indigo-600 cursor-pointer">الشروط والأحكام</span>
-                <span class="hover:text-indigo-600 cursor-pointer">سياسة الخصوصية</span>
-                <span class="hover:text-indigo-600 cursor-pointer">اتصل بنا</span>
+                <span class="hover:text-indigo-600 cursor-pointer">Terms</span>
+                <span class="hover:text-indigo-600 cursor-pointer">Privacy</span>
+                <span class="hover:text-indigo-600 cursor-pointer">Support</span>
             </div>
         </div>
     </footer>
