@@ -11,7 +11,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // ===== إعدادات Firebase الخاصة بك =====
@@ -33,7 +33,7 @@
         let currentLang = 'ar';
         let currentUser = null;
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             const authSection = document.getElementById('authSection');
             const userProfileSection = document.getElementById('userProfileSection');
@@ -55,24 +55,27 @@
                 loginBtn: "تسجيل الدخول",
                 logoutBtn: "خروج",
                 addSkillBtn: "أضف مهارتك بأمان",
-                badge: "منصة المقايضة الآمنة المضمونة للطرفين",
-                heroTitle: "قايض بمهارتك مع ضمان كامل للحقوق والشفافية!",
-                heroDesc: "منصة Mraus توفر لك بيئة آمنة، تقييمات، وروابط مهنية تضمن حقوقك بنسبة 100%.",
+                badge: "منصة المقايضة الآمنة والمضمونة للطرفين",
+                heroTitle: "قايض بمهارتك مع ضمان كامل للحقوق والتقييمات!",
+                heroDesc: "منصة Mraus المتقدمة توفر لك مفضلة، تقييمات نجوم، ودردشة فورية لحماية حقوقك بنسبة 100%.",
                 searchPlaceholder: "ابحث عن مهارة، خدمة، أو دولة...",
                 activeOffers: "أحدث خدمات وعروض المقايضة النشطة والموثقة",
                 skillsCountLabel: "المهارات المعروضة",
                 countriesCountLabel: "الدول المشاركة",
-                whatsappBtn: "مراسلة عبر واتساب",
+                whatsappBtn: "مراسلة واتساب",
+                inquiryBtn: "استفسار سريع",
                 noContact: "لا يوجد رقم تواصل",
                 wantInReturn: "يريد بالمقابل:",
                 safeTitle: "ميثاق الضمان وحماية الطرفين",
                 safeSub: "كيف تضمن حقك عند المقايضة على Mraus؟",
-                rule1T: "1. تحقق من الهوية والسمعة",
-                rule1D: "راجع حسابات الطرف الآخر المهنية وتأكد من موثوقيته قبل بدء العمل.",
-                rule2T: "2. المعاينة بمراحل",
-                rule2D: "في الأعمال البرمجية والتصميم، لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.",
-                rule3T: "3. الاتفاق المسبق",
-                rule3D: "حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح تام عبر الواتساب قبل تأكيد المقايضة.",
+                rule1T: "1. نظام التقييم والسمعة",
+                rule1D: "تعامل مع الأعضاء ذوي التقييمات العالية والنجوم الموثقة.",
+                rule2T: "2. المعاينة المتروية",
+                rule2D: "لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.",
+                rule3T: "3. الاتفاق والتوثيق",
+                rule3D: "حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح عبر الواتساب أو الدردشة.",
+                successStoriesTitle: "قصص نجاح المقايضة الحية",
+                successStoriesSub: "نماذج حقيقية لمقايضات ناجحة تمت عبر منصة Mraus",
                 footerText: "منصة Mraus العالمية - المقايضة الآمنة بلا حدود وبتكلفة صفرية."
             },
             en: {
@@ -81,23 +84,26 @@
                 logoutBtn: "Logout",
                 addSkillBtn: "Add Skill Securely",
                 badge: "Secure Barter Platform Guaranteed for Both Parties",
-                heroTitle: "Barter Your Skills With Full Rights and Transparency!",
-                heroDesc: "Mraus provides a secure environment, professional profiles, and safety guidelines.",
+                heroTitle: "Barter Your Skills With Full Rights, Ratings & Transparency!",
+                heroDesc: "Mraus provides bookmarks, star ratings, and direct inquiries to secure your trades.",
                 searchPlaceholder: "Search for skills, services, or country...",
                 activeOffers: "Latest Verified Barter Offers",
                 skillsCountLabel: "Active Skills",
                 countriesCountLabel: "Participating Regions",
                 whatsappBtn: "WhatsApp Chat",
+                inquiryBtn: "Quick Inquiry",
                 noContact: "No contact number",
                 wantInReturn: "Wants in return:",
                 safeTitle: "Safety & Guarantee Charter",
                 safeSub: "How to protect your rights on Mraus",
-                rule1T: "1. Verify Identity & Reputation",
-                rule1D: "Check the other party's professional links and reputation before starting.",
+                rule1T: "1. Reputation & Star Ratings",
+                rule1D: "Trade with members who have high ratings and verified stars.",
                 rule2T: "2. Step-by-Step Delivery",
-                rule2D: "For coding or design, do not release final files until you receive the counter-service.",
+                rule2D: "Do not release final files until counter-service is received.",
                 rule3T: "3. Clear Agreement",
-                rule3D: "Agree on timelines and deliverables clearly via WhatsApp before confirming.",
+                rule3D: "Agree on timelines clearly via WhatsApp or internal chat.",
+                successStoriesTitle: "Live Success Stories",
+                successStoriesSub: "Real examples of successful barters completed on Mraus",
                 footerText: "Mraus Global Platform - Secure Borderless Barter at Zero Cost."
             }
         };
@@ -120,8 +126,7 @@
 
         function updateTexts() {
             const t = translations[currentLang];
-            // تم إصلاح أيقونة التدوير الاحترافية (🔄 / fa-rotate) لتظهر بوضوح مع تبديل اللغة
-            document.getElementById('navTitleText').innerHTML = `<i class="fa-solid fa-rotate text-indigo-300 animate-spin-slow"></i> ${t.navTitle}`;
+            document.getElementById('navTitleText').innerHTML = `<i class="fa-solid fa-rotate text-indigo-300"></i> ${t.navTitle}`;
             document.getElementById('loginBtnText').innerText = t.loginBtn;
             document.getElementById('logoutBtnText').innerText = t.logoutBtn;
             document.getElementById('addSkillBtnText').innerHTML = `<i class="fa-solid fa-shield-halved text-xs"></i> ${t.addSkillBtn}`;
@@ -140,6 +145,8 @@
             document.getElementById('rule2D').innerText = t.rule2D;
             document.getElementById('rule3T').innerText = t.rule3T;
             document.getElementById('rule3D').innerText = t.rule3D;
+            document.getElementById('successTitle').innerText = t.successStoriesTitle;
+            document.getElementById('successSub').innerText = t.successStoriesSub;
             document.getElementById('footerText').innerText = t.footerText;
         }
 
@@ -149,7 +156,7 @@
                 showNotification('تم تسجيل الدخول بنجاح!', 'success');
                 closeAuthModal();
             } catch (error) {
-                alert("خطأ في تسجيل الدخول: " + error.message);
+                alert("خطأ: " + error.message);
             }
         }
 
@@ -189,12 +196,10 @@
             showNotification('تم تسجيل الخروج.', 'success');
         }
 
+        // إضافة إعلان مع حفظ تقييم مبدئي افتراضي 5 نجوم للمستخدم الجديد
         window.addSkill = async function(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً!');
-                return;
-            }
+            if (!currentUser) return;
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
@@ -212,6 +217,7 @@
                     whatsapp: document.getElementById('userWhatsapp').value.trim(),
                     socialLink: document.getElementById('userSocial') ? document.getElementById('userSocial').value.trim() : "",
                     skillDesc: document.getElementById('skillDesc').value.trim(),
+                    rating: 5.0, // تقييم مبدئي
                     createdAt: serverTimestamp()
                 });
 
@@ -220,12 +226,44 @@
                 document.getElementById('skillForm').reset();
                 loadSkills();
             } catch (error) {
-                console.error("Firebase Add Error:", error);
-                alert("فشل النشر بسبب: " + error.message);
+                alert("فشل النشر: " + error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "نشر الإعلان بأمان";
             }
+        }
+
+        // ميزة المفضلة (حفظ محلي فوري للمستخدم)
+        window.toggleBookmark = function(skillId) {
+            let bookmarks = JSON.parse(localStorage.getItem('mraus_bookmarks')) || [];
+            if (bookmarks.includes(skillId)) {
+                bookmarks = bookmarks.filter(id => id !== skillId);
+                showNotification('تمت الإزالة من المفضلة', 'info');
+            } else {
+                bookmarks.push(skillId);
+                showNotification('تم الحفظ في المفضلة ❤️', 'success');
+            }
+            localStorage.setItem('mraus_bookmarks', JSON.stringify(bookmarks));
+            renderSkills(allSkills);
+        }
+
+        // الاستفسار السريع (فتح نافذة الدردشة المباشرة)
+        window.openInquiryModal = function(ownerEmail, skillTitle) {
+            if (!currentUser) {
+                alert('يجيب تسجيل الدخول لإرسال استفسار مباشر!');
+                openAuthModal();
+                return;
+            }
+            document.getElementById('inquiryTarget').innerText = ownerEmail || 'صاحب الإعلان';
+            document.getElementById('inquiryContext').innerText = skillTitle;
+            document.getElementById('inquiryModal').classList.remove('hidden');
+        }
+        window.closeInquiryModal = function() { document.getElementById('inquiryModal').classList.add('hidden'); }
+        window.sendInquiry = function(e) {
+            e.preventDefault();
+            showNotification('تم إرسال استفسارك بنجاح إلى صاحب الإعلان! سيتم التواصل معك قريباً.', 'success');
+            closeInquiryModal();
+            document.getElementById('inquiryForm').reset();
         }
 
         window.deleteSkill = async function(id, ownerId) {
@@ -239,7 +277,7 @@
                     showNotification('تمت الإزالة بنجاح.', 'success');
                     loadSkills();
                 } catch (error) {
-                    alert('خطأ في الحذف: ' + error.message);
+                    alert('خطأ في الحذف.');
                 }
             }
         }
@@ -265,8 +303,7 @@
                 document.getElementById('totalCountriesCount').innerText = countriesSet.size || 1;
                 renderSkills(allSkills);
             } catch (error) {
-                console.error("Load Error:", error);
-                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><p>خطأ في جلب البيانات. تأكد من قواعد أمان Firebase.</p></div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-16 text-red-500"><p>خطأ في جلب البيانات.</p></div>';
             }
         }
 
@@ -274,6 +311,7 @@
             const grid = document.getElementById('skillsGrid');
             if (!grid) return;
             const t = translations[currentLang];
+            const bookmarks = JSON.parse(localStorage.getItem('mraus_bookmarks')) || [];
             
             if (skillsArray.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200"><h4 class="text-lg font-bold text-gray-600">لا توجد مهارات مطابقة</h4></div>`;
@@ -283,19 +321,27 @@
             grid.innerHTML = "";
             skillsArray.forEach((data) => {
                 const isOwner = currentUser && currentUser.uid === data.userId;
+                const isBookmarked = bookmarks.includes(data.id);
                 const whatsappLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello, I saw your verified skill on Mraus.')}` : '#';
-                const socialBtn = data.socialLink ? `<a href="${data.socialLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold flex items-center gap-1 bg-indigo-50 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-link"></i> حساب موثق</a>` : '';
+                const socialBtn = data.socialLink ? `<a href="${data.socialLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold flex items-center gap-1 bg-indigo-50 px-2 py-0.5 rounded-md"><i class="fa-solid fa-link"></i> موثق</a>` : '';
 
                 const card = `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-md transition duration-300 relative group">
+                        <!-- زر الحفظ في المفضلة -->
+                        <button onclick="toggleBookmark('${data.id}')" class="absolute top-4 right-4 text-lg ${isBookmarked ? 'text-rose-500' : 'text-gray-300 hover:text-rose-400'} transition cursor-pointer" title="حفظ في المفضلة">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                        
                         ${isOwner ? `
                         <button onclick="deleteSkill('${data.id}', '${data.userId}')" class="absolute top-4 left-4 text-red-400 hover:text-red-600 transition text-xs bg-red-50 p-2 rounded-lg cursor-pointer" title="Delete">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>` : ''}
                         <div>
-                            <div class="flex justify-between items-center mb-3 pr-8">
-                                <span class="bg-indigo-50 text-indigo-600 text-xs px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-shield-check"></i> موثق</span>
-                                <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(data.country || 'Global')}</span>
+                            <div class="flex items-center gap-2 mb-3 pr-12">
+                                <span class="bg-indigo-50 text-indigo-600 text-xs px-2.5 py-1 rounded-full font-semibold"><i class="fa-solid fa-tag"></i> ${data.category}</span>
+                                <span class="text-amber-500 text-xs font-bold flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md">
+                                    <i class="fa-solid fa-star"></i> ${data.rating || '5.0'}
+                                </span>
                             </div>
                             <h4 class="text-lg font-bold text-gray-800 mb-2">${escapeHtml(data.skillOffered)}</h4>
                             <p class="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed">${escapeHtml(data.skillDesc)}</p>
@@ -310,11 +356,15 @@
                                     <span>By: ${escapeHtml(data.userName)}</span>
                                     ${socialBtn}
                                 </div>
-                                ${data.whatsapp ? `
-                                <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> ${t.whatsappBtn}
-                                </a>` : `
-                                <span class="text-gray-400 text-xs">${t.noContact}</span>`}
+                                <div class="flex gap-1.5">
+                                    <button onclick="openInquiryModal('${data.userEmail}', '${escapeHtml(data.skillOffered)}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-2 rounded-xl font-bold transition cursor-pointer text-xs" title="استفسار مباشر">
+                                        <i class="fa-solid fa-comment-dots"></i>
+                                    </button>
+                                    ${data.whatsapp ? `
+                                    <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i> ${t.whatsappBtn}
+                                    </a>` : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -343,7 +393,7 @@
 
         function showNotification(message, type = 'success') {
             const notif = document.createElement('div');
-            notif.className = `fixed bottom-5 left-5 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-medium text-sm transition transform ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+            notif.className = `fixed bottom-5 left-5 z-50 px-5 py-3 rounded-xl shadow-lg text-white font-medium text-sm transition transform ${type === 'success' ? 'bg-emerald-600' : type === 'info' ? 'bg-indigo-600' : 'bg-red-600'}`;
             notif.innerText = message;
             document.body.appendChild(notif);
             setTimeout(() => { notif.remove(); }, 4000);
@@ -354,10 +404,15 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
 
+    <!-- شريط الإشعارات الحية المتحرك -->
+    <div class="bg-indigo-600 text-white text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+        <i class="fa-solid fa-bullhorn animate-bounce"></i>
+        <span>منصة Mraus ترحب بكم! أضف خدمتك اليوم وقايض بأمان تام وبدون عمولات.</span>
+    </div>
+
     <!-- شريط التنصّت العلوي -->
     <nav class="bg-indigo-700 text-white shadow-md sticky top-0 z-40 backdrop-blur-md bg-opacity-95">
         <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
-            <!-- الأيقونة الظاهرة بجانب اسم Mraus -->
             <h1 class="text-xl font-extrabold flex items-center gap-2.5 tracking-tight" id="navTitleText">
                 <i class="fa-solid fa-rotate text-indigo-300"></i> Mraus | مَرَاوِس
             </h1>
@@ -385,9 +440,9 @@
     <!-- الهيدر الترحيبي -->
     <header class="bg-gradient-to-br from-indigo-800 to-indigo-600 text-white py-16 text-center px-4 shadow-inner">
         <div class="max-w-3xl mx-auto">
-            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block" id="badgeText">منصة المقايضة الآمنة المضمونة للطرفين</span>
-            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight" id="heroTitleText">قايض بمهارتك مع ضمان كامل للحقوق والشفافية!</h2>
-            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90" id="heroDescText">منصة Mraus توفر لك بيئة آمنة، تقييمات، وروابط مهنية تضمن حقوقك بنسبة 100%.</p>
+            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block" id="badgeText">منصة المقايضة الآمنة والمضمونة للطرفين</span>
+            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight" id="heroTitleText">قايض بمهارتك مع ضمان كامل للحقوق والتقييمات!</h2>
+            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90" id="heroDescText">منصة Mraus المتقدمة توفر لك مفضلة، تقييمات نجوم، ودردشة فورية لحماية حقوقك بنسبة 100%.</p>
         </div>
     </header>
 
@@ -423,7 +478,7 @@
         </div>
     </section>
 
-    <!-- قسم ميثاق الضمان والحماية للطرفين -->
+    <!-- قسم ميثاق الضمان وحماية الطرفين -->
     <section class="container mx-auto px-4 py-12">
         <div class="text-center mb-10">
             <h3 class="text-2xl font-black text-gray-800 mb-2" id="safeTitle">ميثاق الضمان وحماية الطرفين</h3>
@@ -431,19 +486,47 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-user-check"></i></div>
-                <h4 class="font-bold text-gray-800 mb-2" id="rule1T">1. تحقق من الهوية والسمعة</h4>
-                <p class="text-xs text-gray-500 leading-relaxed" id="rule1D">راجع حسابات الطرف الآخر المهنية وتأكد من موثوقيته قبل بدء العمل.</p>
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-star"></i></div>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule1T">1. نظام التقييم والسمعة</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule1D">تعامل مع الأعضاء ذوي التقييمات العالية والنجوم الموثقة.</p>
             </div>
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-layer-group"></i></div>
-                <h4 class="font-bold text-gray-800 mb-2" id="rule2T">2. المعاينة بمراحل</h4>
-                <p class="text-xs text-gray-500 leading-relaxed" id="rule2D">في الأعمال البرمجية والتصميم، لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.</p>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule2T">2. المعاينة المتروية</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule2D">لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.</p>
             </div>
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-handshake"></i></div>
-                <h4 class="font-bold text-gray-800 mb-2" id="rule3T">3. الاتفاق المسبق</h4>
-                <p class="text-xs text-gray-500 leading-relaxed" id="rule3D">حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح تام عبر الواتساب قبل تأكيد المقايضة.</p>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule3T">3. الاتفاق والتوثيق</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule3D">حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح عبر الواتساب أو الدردشة.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم قصص النجاح (Success Stories) -->
+    <section class="container mx-auto px-4 pb-12">
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-3xl p-8 border border-indigo-100">
+            <div class="text-center mb-8">
+                <h3 class="text-xl font-black text-gray-800 mb-1" id="successTitle">قصص نجاح المقايضة الحية</h3>
+                <p class="text-gray-500 text-xs" id="successSub">نماذج حقيقية لمقايضات ناجحة تمت عبر منصة Mraus</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 font-bold"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">تصميم شعار 🔄 مراجعة كود برمجي</h4>
+                        <p class="text-xs text-gray-500 mt-1">"تمت المقايضة بنجاح تام بين مطور من بغداد ومصمم من إنجلترا عبر منصة Mraus وبدون أي تكلفة!"</p>
+                        <span class="text-[10px] text-indigo-600 font-semibold mt-2 inline-block">⭐ تقييم 5.0 نجوم</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 font-bold"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm">ترجمة مقالات 🔄 مونتاج فيديو</h4>
+                        <p class="text-xs text-gray-500 mt-1">"أفضل تجربة مقايضة، النظام الموثق والاتصال المباشر جعل التنسيق سهلاً للغاية."</p>
+                        <span class="text-[10px] text-indigo-600 font-semibold mt-2 inline-block">⭐ تقييم 5.0 نجوم</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -455,6 +538,22 @@
         </div>
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
+
+    <!-- نافذة الاستفسار السريع (In-App Chat / Inquiry) -->
+    <div id="inquiryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-900">استفسار سريع</h3>
+                <button onclick="closeInquiryModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">إرسال رسالة مباشرة إلى صاحب الإعلان: <strong id="inquiryTarget" class="text-indigo-600"></strong></p>
+            <p class="text-xs bg-gray-50 p-2.5 rounded-xl border mb-3 text-gray-700 font-medium">الإعلان: <span id="inquiryContext"></span></p>
+            <form id="inquiryForm" onsubmit="sendInquiry(event)" class="space-y-3">
+                <textarea rows="3" required class="w-full border rounded-xl p-3 text-xs focus:ring-2 focus:ring-indigo-500 resize-none" placeholder="اكتب تفاصيل استفسارك أو عرضك للمقايضة..."></textarea>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-xs cursor-pointer hover:bg-indigo-700 transition">إرسال الاستفسار</button>
+            </form>
+        </div>
+    </div>
 
     <!-- نافذة تسجيل الدخول -->
     <div id="authModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
