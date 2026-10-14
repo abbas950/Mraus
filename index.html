@@ -14,15 +14,14 @@
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ===== ضع إعدادات Firebase الخاصة بك هنا =====
+        // ===== إعدادات Firebase الخاصة بك =====
         const firebaseConfig = {
             apiKey: "AIzaSyCCNYumvakjtEb0tygzzGkm0Z72VAPf1BE",
-  authDomain: "skills-barter-app.firebaseapp.com",
-  projectId: "skills-barter-app",
-  storageBucket: "skills-barter-app.firebasestorage.app",
-  messagingSenderId: "123382285084",
-  appId: "1:123382285084:web:d98136775fa4888fb9b0d9"
-
+            authDomain: "skills-barter-app.firebaseapp.com",
+            projectId: "skills-barter-app",
+            storageBucket: "skills-barter-app.firebasestorage.app",
+            messagingSenderId: "123382285084",
+            appId: "1:123382285084:web:d98136775fa4888fb9b0d9"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -54,38 +53,52 @@
             ar: {
                 navTitle: "Mraus | مَرَاوِس",
                 loginBtn: "تسجيل الدخول",
-                registerBtn: "حساب جديد",
                 logoutBtn: "خروج",
-                addSkillBtn: "أضف مهارتك مجاناً",
-                badge: "منصة المقايضة الرقمية العالمية 100% مجاناً",
-                heroTitle: "قايض بمهارتك مع أي شخص في العالم بلا أموال!",
-                heroDesc: "سجل دخولك عبر جوجل أو البريد وتحكم بمهاراتك بحرية تامة.",
+                addSkillBtn: "أضف مهارتك بأمان",
+                badge: "منصة المقايضة الآمنة المضمونة للطرفين",
+                heroTitle: "قايض بمهارتك مع ضمان كامل للحقوق والشفافية!",
+                heroDesc: "منصة Mraus توفر لك بيئة آمنة، تقييمات، وروابط مهنية تضمن حقوقك بنسبة 100%.",
                 searchPlaceholder: "ابحث عن مهارة، خدمة، أو دولة...",
-                activeOffers: "أحدث خدمات وعروض المقايضة النشطة",
+                activeOffers: "أحدث خدمات وعروض المقايضة النشطة والموثقة",
                 skillsCountLabel: "المهارات المعروضة",
                 countriesCountLabel: "الدول المشاركة",
-                whatsappBtn: "مراسلة واتساب",
+                whatsappBtn: "مراسلة عبر واتساب",
                 noContact: "لا يوجد رقم تواصل",
                 wantInReturn: "يريد بالمقابل:",
-                footerText: "منصة Mraus العالمية - المقايضة الرقمية الآمنة وبتكلفة صفرية."
+                safeTitle: "ميثاق الضمان وحماية الطرفين",
+                safeSub: "كيف تضمن حقك عند المقايضة على Mraus؟",
+                rule1T: "1. تحقق من الهوية والسمعة",
+                rule1D: "راجع حسابات الطرف الآخر المهنية وتأكد من موثوقيته قبل بدء العمل.",
+                rule2T: "2. المعاينة بمراحل",
+                rule2D: "في الأعمال البرمجية والتصميم، لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.",
+                rule3T: "3. الاتفاق المسبق",
+                rule3D: "حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح تام عبر الواتساب قبل تأكيد المقايضة.",
+                footerText: "منصة Mraus العالمية - المقايضة الآمنة بلا حدود وبتكلفة صفرية."
             },
             en: {
                 navTitle: "Mraus | Global Barter",
                 loginBtn: "Login",
-                registerBtn: "Register",
                 logoutBtn: "Logout",
-                addSkillBtn: "Add Skill Free",
-                badge: "100% Free Global Digital Barter Platform",
-                heroTitle: "Barter Your Skills With Anyone Worldwide Securely!",
-                heroDesc: "Log in with Google or Email to manage your offers.",
+                addSkillBtn: "Add Skill Securely",
+                badge: "Secure Barter Platform Guaranteed for Both Parties",
+                heroTitle: "Barter Your Skills With Full Rights and Transparency!",
+                heroDesc: "Mraus provides a secure environment, professional profiles, and safety guidelines.",
                 searchPlaceholder: "Search for skills, services, or country...",
-                activeOffers: "Latest Active Barter Offers",
+                activeOffers: "Latest Verified Barter Offers",
                 skillsCountLabel: "Active Skills",
                 countriesCountLabel: "Participating Regions",
                 whatsappBtn: "WhatsApp Chat",
                 noContact: "No contact number",
                 wantInReturn: "Wants in return:",
-                footerText: "Mraus Global Platform - Secure Borderless Digital Barter at Zero Cost."
+                safeTitle: "Safety & Guarantee Charter",
+                safeSub: "How to protect your rights on Mraus",
+                rule1T: "1. Verify Identity & Reputation",
+                rule1D: "Check the other party's professional links and reputation before starting.",
+                rule2T: "2. Step-by-Step Delivery",
+                rule2D: "For coding or design, do not release final files until you receive the counter-service.",
+                rule3T: "3. Clear Agreement",
+                rule3D: "Agree on timelines and deliverables clearly via WhatsApp before confirming.",
+                footerText: "Mraus Global Platform - Secure Borderless Barter at Zero Cost."
             }
         };
 
@@ -107,10 +120,11 @@
 
         function updateTexts() {
             const t = translations[currentLang];
-            document.getElementById('navTitleText').innerHTML = `<i class="fa-solid fa-hands-holding-circle text-indigo-300"></i> ${t.navTitle}`;
+            // تم إصلاح أيقونة التدوير الاحترافية (🔄 / fa-rotate) لتظهر بوضوح مع تبديل اللغة
+            document.getElementById('navTitleText').innerHTML = `<i class="fa-solid fa-rotate text-indigo-300 animate-spin-slow"></i> ${t.navTitle}`;
             document.getElementById('loginBtnText').innerText = t.loginBtn;
             document.getElementById('logoutBtnText').innerText = t.logoutBtn;
-            document.getElementById('addSkillBtnText').innerHTML = `<i class="fa-solid fa-plus text-xs"></i> ${t.addSkillBtn}`;
+            document.getElementById('addSkillBtnText').innerHTML = `<i class="fa-solid fa-shield-halved text-xs"></i> ${t.addSkillBtn}`;
             document.getElementById('badgeText').innerText = t.badge;
             document.getElementById('heroTitleText').innerText = t.heroTitle;
             document.getElementById('heroDescText').innerText = t.heroDesc;
@@ -118,6 +132,14 @@
             document.getElementById('skillsCountLabel').innerText = t.skillsCountLabel;
             document.getElementById('countriesCountLabel').innerText = t.countriesCountLabel;
             document.getElementById('activeTitle').innerText = t.activeOffers;
+            document.getElementById('safeTitle').innerText = t.safeTitle;
+            document.getElementById('safeSub').innerText = t.safeSub;
+            document.getElementById('rule1T').innerText = t.rule1T;
+            document.getElementById('rule1D').innerText = t.rule1D;
+            document.getElementById('rule2T').innerText = t.rule2T;
+            document.getElementById('rule2D').innerText = t.rule2D;
+            document.getElementById('rule3T').innerText = t.rule3T;
+            document.getElementById('rule3D').innerText = t.rule3D;
             document.getElementById('footerText').innerText = t.footerText;
         }
 
@@ -136,7 +158,7 @@
 
         window.openAddModal = function() {
             if (!currentUser) {
-                alert(currentLang === 'ar' ? 'يرجى تسجيل الدخول أولاً لإضافة مهارتك!' : 'Please log in first!');
+                alert(currentLang === 'ar' ? 'يرجى تسجيل الدخول أولاً لضمان موثوقية إعلانك!' : 'Please log in first!');
                 openAuthModal();
                 return;
             }
@@ -148,9 +170,7 @@
             e.preventDefault();
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value.trim();
-
             try {
-                // محاولة تسجيل الدخول، وإن لمط تكن موجودة يتم إنشاؤها تلقائياً
                 try {
                     await signInWithEmailAndPassword(auth, email, pass);
                 } catch {
@@ -169,7 +189,6 @@
             showNotification('تم تسجيل الخروج.', 'success');
         }
 
-        // دالة إضافة الإعلان المحسنة والمؤمنة
         window.addSkill = async function(e) {
             e.preventDefault();
             if (!currentUser) {
@@ -179,7 +198,7 @@
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerText = 'جاري النشر...';
+            submitBtn.innerText = 'جاري النشر الموثق...';
 
             try {
                 await addDoc(collection(db, "skills"), {
@@ -191,11 +210,12 @@
                     skillOffered: document.getElementById('skillOffered').value.trim(),
                     skillWanted: document.getElementById('skillWanted').value.trim(),
                     whatsapp: document.getElementById('userWhatsapp').value.trim(),
+                    socialLink: document.getElementById('userSocial') ? document.getElementById('userSocial').value.trim() : "",
                     skillDesc: document.getElementById('skillDesc').value.trim(),
                     createdAt: serverTimestamp()
                 });
 
-                showNotification('تم نشر إعلانك بنجاح! 🎉', 'success');
+                showNotification('تم نشر إعلانك الموثق بنجاح! 🎉', 'success');
                 closeAddModal();
                 document.getElementById('skillForm').reset();
                 loadSkills();
@@ -204,7 +224,7 @@
                 alert("فشل النشر بسبب: " + error.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = "نشر الإعلان";
+                submitBtn.innerText = "نشر الإعلان بأمان";
             }
         }
 
@@ -263,7 +283,8 @@
             grid.innerHTML = "";
             skillsArray.forEach((data) => {
                 const isOwner = currentUser && currentUser.uid === data.userId;
-                const whatsappLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello, I saw your skill on Mraus.')}` : '#';
+                const whatsappLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello, I saw your verified skill on Mraus.')}` : '#';
+                const socialBtn = data.socialLink ? `<a href="${data.socialLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold flex items-center gap-1 bg-indigo-50 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-link"></i> حساب موثق</a>` : '';
 
                 const card = `
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-md transition duration-300 relative group">
@@ -273,7 +294,7 @@
                         </button>` : ''}
                         <div>
                             <div class="flex justify-between items-center mb-3 pr-8">
-                                <span class="bg-indigo-50 text-indigo-600 text-xs px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-tag"></i> ${data.category}</span>
+                                <span class="bg-indigo-50 text-indigo-600 text-xs px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-shield-check"></i> موثق</span>
                                 <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(data.country || 'Global')}</span>
                             </div>
                             <h4 class="text-lg font-bold text-gray-800 mb-2">${escapeHtml(data.skillOffered)}</h4>
@@ -285,9 +306,12 @@
                                 <span class="truncate">${t.wantInReturn} <strong>${escapeHtml(data.skillWanted)}</strong></span>
                             </div>
                             <div class="flex justify-between items-center text-xs text-gray-500 pt-1">
-                                <span>By: ${escapeHtml(data.userName)}</span>
+                                <div class="flex items-center gap-2">
+                                    <span>By: ${escapeHtml(data.userName)}</span>
+                                    ${socialBtn}
+                                </div>
                                 ${data.whatsapp ? `
-                                <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
+                                <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-sm">
                                     <i class="fa-brands fa-whatsapp text-sm"></i> ${t.whatsappBtn}
                                 </a>` : `
                                 <span class="text-gray-400 text-xs">${t.noContact}</span>`}
@@ -333,8 +357,9 @@
     <!-- شريط التنصّت العلوي -->
     <nav class="bg-indigo-700 text-white shadow-md sticky top-0 z-40 backdrop-blur-md bg-opacity-95">
         <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
+            <!-- الأيقونة الظاهرة بجانب اسم Mraus -->
             <h1 class="text-xl font-extrabold flex items-center gap-2.5 tracking-tight" id="navTitleText">
-                <i class="fa-solid fa-hands-holding-circle text-indigo-300"></i> Mraus | مَرَاوِس
+                <i class="fa-solid fa-rotate text-indigo-300"></i> Mraus | مَرَاوِس
             </h1>
             <div class="flex items-center gap-2">
                 <button onclick="toggleLanguage()" class="bg-indigo-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold border border-indigo-500 cursor-pointer">
@@ -351,7 +376,7 @@
                 </div>
 
                 <button onclick="openAddModal()" class="bg-white text-indigo-700 px-3.5 py-2 rounded-xl font-bold shadow-sm hover:bg-indigo-50 transition text-xs flex items-center gap-1.5 cursor-pointer" id="addSkillBtnText">
-                    <i class="fa-solid fa-plus text-xs"></i> أضف مهارتك مجاناً
+                    <i class="fa-solid fa-shield-halved text-xs"></i> أضف مهارتك بأمان
                 </button>
             </div>
         </div>
@@ -360,9 +385,9 @@
     <!-- الهيدر الترحيبي -->
     <header class="bg-gradient-to-br from-indigo-800 to-indigo-600 text-white py-16 text-center px-4 shadow-inner">
         <div class="max-w-3xl mx-auto">
-            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block" id="badgeText">منصة المقايضة الرقمية العالمية 100% مجاناً</span>
-            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight" id="heroTitleText">قايض بمهارتك مع أي شخص في العالم بلا أموال!</h2>
-            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90" id="heroDescText">سجل دخولك عبر جوجل أو البريد وتحكم بمهاراتك بحرية تامة.</p>
+            <span class="bg-indigo-500 bg-opacity-40 text-indigo-100 text-xs px-3.5 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-4 inline-block" id="badgeText">منصة المقايضة الآمنة المضمونة للطرفين</span>
+            <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight" id="heroTitleText">قايض بمهارتك مع ضمان كامل للحقوق والشفافية!</h2>
+            <p class="text-indigo-100 text-base md:text-lg leading-relaxed opacity-90" id="heroDescText">منصة Mraus توفر لك بيئة آمنة، تقييمات، وروابط مهنية تضمن حقوقك بنسبة 100%.</p>
         </div>
     </header>
 
@@ -398,10 +423,35 @@
         </div>
     </section>
 
+    <!-- قسم ميثاق الضمان والحماية للطرفين -->
+    <section class="container mx-auto px-4 py-12">
+        <div class="text-center mb-10">
+            <h3 class="text-2xl font-black text-gray-800 mb-2" id="safeTitle">ميثاق الضمان وحماية الطرفين</h3>
+            <p class="text-gray-500 text-sm" id="safeSub">كيف تضمن حقك عند المقايضة على Mraus؟</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-user-check"></i></div>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule1T">1. تحقق من الهوية والسمعة</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule1D">راجع حسابات الطرف الآخر المهنية وتأكد من موثوقيته قبل بدء العمل.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-layer-group"></i></div>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule2T">2. المعاينة بمراحل</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule2D">في الأعمال البرمجية والتصميم، لا تسلم الملفات النهائية إلا بعد استلام الخدمة المقابلة.</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4 font-bold"><i class="fa-solid fa-handshake"></i></div>
+                <h4 class="font-bold text-gray-800 mb-2" id="rule3T">3. الاتفاق المسبق</h4>
+                <p class="text-xs text-gray-500 leading-relaxed" id="rule3D">حدد تفاصيل ومواعيد إنجاز الخدمة بوضوح تام عبر الواتساب قبل تأكيد المقايضة.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- محتوى الصفحة -->
-    <main class="container mx-auto px-4 py-12">
+    <main class="container mx-auto px-4 pb-12">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-800" id="activeTitle">أحدث خدمات وعروض المقايضة النشطة</h3>
+            <h3 class="text-xl font-bold text-gray-800" id="activeTitle">أحدث خدمات وعروض المقايضة النشطة والموثقة</h3>
         </div>
         <div id="skillsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
@@ -410,7 +460,7 @@
     <div id="authModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 class="text-lg font-bold text-gray-900">تسجيل الدخول</h3>
+                <h3 class="text-lg font-bold text-gray-900">تسجيل الدخول بأمان</h3>
                 <button onclick="closeAuthModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
@@ -438,16 +488,16 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة مهارة -->
+    <!-- نافذة إضافة مهارة موثقة -->
     <div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b pb-3">
-                <h3 class="text-xl font-bold text-gray-900">اعرض مهارتك للمقايضة</h3>
+                <h3 class="text-xl font-bold text-gray-900">اعرض مهارتك بأمان وتوثيق</h3>
                 <button type="button" onclick="closeAddModal()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form id="skillForm" onsubmit="addSkill(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">اسمك أو معرفك</label>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">اسمك أو معرفك الشخصي</label>
                     <input type="text" id="userName" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: أحمد">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -475,15 +525,21 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">ماذا تريد بالمقابل؟</label>
                     <input type="text" id="skillWanted" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="مثال: ترجمة مقالات">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">رقم الواتساب</label>
-                    <input type="text" id="userWhatsapp" class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="+9647700000000">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">رقم الواتساب</label>
+                        <input type="text" id="userWhatsapp" class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="+9647700000000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">رابط حساب مهني (للضمان)</label>
+                        <input type="url" id="userSocial" class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50" placeholder="LinkedIn / GitHub URL">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">التفاصيل</label>
-                    <textarea id="skillDesc" rows="3" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50 resize-none" placeholder="نبذة مختصرة..."></textarea>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">التفاصيل وشروط المقايضة</label>
+                    <textarea id="skillDesc" rows="3" required class="w-full border rounded-xl px-4 py-2.5 text-sm bg-gray-50 resize-none" placeholder="نبذة مختصرة وكيف سيتم تسليم الخدمة..."></textarea>
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition text-sm cursor-pointer">نشر الإعلان</button>
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition text-sm cursor-pointer">نشر الإعلان بأمان</button>
             </form>
         </div>
     </div>
@@ -491,7 +547,7 @@
     <!-- الفوتر -->
     <footer class="bg-white border-t text-center py-8 text-gray-400 text-xs mt-16">
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p id="footerText">منصة Mraus العالمية - المقايضة الرقمية الآمنة وبتكلفة صفرية.</p>
+            <p id="footerText">منصة Mraus العالمية - المقايضة الآمنة بلا حدود وبتكلفة صفرية.</p>
         </div>
     </footer>
 </body>
